@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Warm Theme Colors -->
+    <color name="warm_primary">#D84315</color>
+    <color name="warm_on_primary">#FFFFFF</color>
+    <color name="warm_secondary">#795548</color>
+    <color name="warm_on_secondary">#FFFFFF</color>
+    <color name="warm_background">#FFFDE7</color>
+    <color name="warm_on_background">#211A18</color>
+    <color name="warm_surface">#FFFDE7</color>
+    <color name="warm_on_surface">#211A18</color>
+
+    <!-- Dark Warm Theme Colors -->
+    <color name="warm_primary_dark">#F4511E</color>
+    <color name="warm_background_dark">#211A18</color>
+    <color name="warm_surface_dark">#3E2723</color>
+    <color name="warm_on_surface_dark">#FFFAF0</color>
 </resources>
