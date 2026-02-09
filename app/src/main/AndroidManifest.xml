@@ -20,8 +20,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ShakeActivity" />
-        <activity android:name=".FunActivity" />
+        <activity
+            android:name=".ShakeActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".FunActivity"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>
