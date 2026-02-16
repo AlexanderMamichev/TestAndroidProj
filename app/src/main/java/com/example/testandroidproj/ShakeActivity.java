@@ -28,6 +28,7 @@ public class ShakeActivity extends AppCompatActivity implements SensorEventListe
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
+            actionBar.setTitle(R.string.project_title);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
