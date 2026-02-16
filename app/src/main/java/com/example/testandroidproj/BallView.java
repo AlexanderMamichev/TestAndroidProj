@@ -92,6 +92,20 @@ public class BallView extends View {
         // Bottom path walls
         walls.add(new RectF(0, h * 0.75f, w * 0.65f, h * 0.8f));
 
+        // *** FIX FOR INVALID RECTANGLES ***
+        // This loop sorts the coordinates of each wall to ensure they are valid for collision detection.
+        for (RectF wall : walls) {
+            if (wall.left > wall.right) {
+                float temp = wall.left;
+                wall.left = wall.right;
+                wall.right = temp;
+            }
+            if (wall.top > wall.bottom) {
+                float temp = wall.top;
+                wall.top = wall.bottom;
+                wall.bottom = temp;
+            }
+        }
     }
 
     @Override
@@ -111,20 +125,32 @@ public class BallView extends View {
     }
 
     public void updatePosition(float x, float y) {
-        float newX = xPos - x * TILT_SENSITIVITY;
-        float newY = yPos + y * TILT_SENSITIVITY;
+        float dx = -x * TILT_SENSITIVITY;
+        float dy = y * TILT_SENSITIVITY;
 
-        RectF nextBallBounds = new RectF(newX - BALL_RADIUS, newY - BALL_RADIUS, newX + BALL_RADIUS, newY + BALL_RADIUS);
+        // Move in smaller steps to avoid jumping over walls
+        int steps = 5;
+        for (int i = 0; i < steps; i++) {
+            float nextX = xPos + dx / steps;
+            float nextY = yPos + dy / steps;
 
-        for (RectF wall : walls) {
-            if (RectF.intersects(nextBallBounds, wall)) {
-                return;
+            RectF nextBallBounds = new RectF(nextX - BALL_RADIUS, nextY - BALL_RADIUS, nextX + BALL_RADIUS, nextY + BALL_RADIUS);
+
+            boolean collision = false;
+            for (RectF wall : walls) {
+                if (RectF.intersects(nextBallBounds, wall)) {
+                    collision = true;
+                    break;
+                }
+            }
+
+            if (!collision) {
+                xPos = nextX;
+                yPos = nextY;
             }
         }
 
-        xPos = newX;
-        yPos = newY;
-
+        // Boundary checks
         if (xPos < BALL_RADIUS) xPos = BALL_RADIUS;
         if (xPos > getWidth() - BALL_RADIUS) xPos = getWidth() - BALL_RADIUS;
         if (yPos < BALL_RADIUS) yPos = BALL_RADIUS;
