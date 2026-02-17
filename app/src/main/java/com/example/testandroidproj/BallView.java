@@ -35,6 +35,18 @@ public class BallView extends View {
     private List<RectF> walls = new ArrayList<>();
     private RectF finishArea;
     private RectF startArea;
+    private boolean hasLeftStart = false;
+
+    private GameEventListener gameEventListener;
+
+    public interface GameEventListener {
+        void onGameStart();
+        void onGameFinish();
+    }
+
+    public void setGameEventListener(GameEventListener listener) {
+        this.gameEventListener = listener;
+    }
 
     public BallView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -156,6 +168,13 @@ public class BallView extends View {
         if (yPos < BALL_RADIUS) yPos = BALL_RADIUS;
         if (yPos > getHeight() - BALL_RADIUS) yPos = getHeight() - BALL_RADIUS;
 
+        if (!hasLeftStart && !startArea.contains(xPos, yPos)) {
+            hasLeftStart = true;
+            if (gameEventListener != null) {
+                gameEventListener.onGameStart();
+            }
+        }
+
         invalidate();
     }
 
@@ -171,12 +190,17 @@ public class BallView extends View {
     }
 
     public boolean isBallInFinish() {
-        return finishArea.contains(xPos, yPos);
+        boolean finished = finishArea.contains(xPos, yPos);
+        if (finished && gameEventListener != null) {
+            gameEventListener.onGameFinish();
+        }
+        return finished;
     }
 
     public void resetBall() {
         xPos = startX;
         yPos = startY;
+        hasLeftStart = false;
         invalidate();
     }
 }

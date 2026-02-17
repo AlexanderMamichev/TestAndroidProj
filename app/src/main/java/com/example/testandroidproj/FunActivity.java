@@ -7,19 +7,38 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class FunActivity extends AppCompatActivity implements SensorEventListener {
+public class FunActivity extends AppCompatActivity implements SensorEventListener, BallView.GameEventListener {
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private BallView ballView;
     private Vibrator vibrator;
+    private TextView timerView;
+    private TextView lastTimeView;
+    private long startTime = 0;
+    private long lastTime = 0;
+    private boolean isTimerRunning = false;
+    private Handler timerHandler = new Handler();
+
+    private Runnable timerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long millis = SystemClock.elapsedRealtime() - startTime;
+            timerView.setText(formatTime(millis));
+            timerHandler.postDelayed(this, 50);
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +52,11 @@ public class FunActivity extends AppCompatActivity implements SensorEventListene
         }
 
         ballView = findViewById(R.id.ballView);
+        ballView.setGameEventListener(this);
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        timerView = findViewById(R.id.timerTextView);
+        lastTimeView = findViewById(R.id.lastTimeTextView);
 
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -55,6 +77,7 @@ public class FunActivity extends AppCompatActivity implements SensorEventListene
         if (sensorManager != null) {
             sensorManager.unregisterListener(this);
         }
+        timerHandler.removeCallbacks(timerRunnable);
     }
 
     @Override
@@ -65,6 +88,7 @@ public class FunActivity extends AppCompatActivity implements SensorEventListene
             if (ballView.isBallInHole()) {
                 vibrate();
                 ballView.resetBall();
+                resetTimer();
             } else if (ballView.isBallInFinish()) {
                 // You could add a more sophisticated win screen here
                 Toast.makeText(this, "You Win!", Toast.LENGTH_SHORT).show();
@@ -85,5 +109,40 @@ public class FunActivity extends AppCompatActivity implements SensorEventListene
             //deprecated in API 26
             vibrator.vibrate(200);
         }
+    }
+
+    @Override
+    public void onGameStart() {
+        if (!isTimerRunning) {
+            if (lastTime != 0) {
+                lastTimeView.setText("Last time: " + formatTime(lastTime));
+            }
+            startTime = SystemClock.elapsedRealtime();
+            timerHandler.postDelayed(timerRunnable, 0);
+            isTimerRunning = true;
+        }
+    }
+
+    @Override
+    public void onGameFinish() {
+        if (isTimerRunning) {
+            timerHandler.removeCallbacks(timerRunnable);
+            lastTime = SystemClock.elapsedRealtime() - startTime;
+            lastTimeView.setText("Time: " + formatTime(lastTime));
+            isTimerRunning = false;
+        }
+    }
+
+    private void resetTimer() {
+        timerHandler.removeCallbacks(timerRunnable);
+        isTimerRunning = false;
+        timerView.setText("00:00:000");
+    }
+
+    private String formatTime(long millis) {
+        long seconds = (millis / 1000) % 60;
+        long minutes = (millis / (1000 * 60)) % 60;
+        long milliseconds = millis % 1000;
+        return String.format("%02d:%02d:%03d", minutes, seconds, milliseconds);
     }
 }
