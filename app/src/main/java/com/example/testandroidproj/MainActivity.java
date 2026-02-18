@@ -57,5 +57,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        Button accelerometerButton = findViewById(R.id.accelerometer_button);
+        accelerometerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, AccelerometerActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }

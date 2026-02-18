@@ -28,6 +28,9 @@
         <activity
             android:name=".FunActivity"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".AccelerometerActivity"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>
